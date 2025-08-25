@@ -11,73 +11,96 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at top, #1e3c72, #2a5298, #0f2027);
+      flex-direction: column;
+      background: radial-gradient(circle at center, #0d1117, #000000 80%);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow: hidden;
       color: #fff;
     }
 
+    .logo {
+      width: 120px;
+      animation: pulse 3s infinite ease-in-out;
+      margin-bottom: 30px;
+      filter: drop-shadow(0 0 15px rgba(66,133,244,0.8));
+    }
+
     h1 {
-      font-size: 3em;
+      font-size: 2.8em;
       text-transform: uppercase;
-      background: linear-gradient(90deg, #3498db, #2ecc71, #f1c40f, #e74c3c, #3498db);
+      letter-spacing: 3px;
+      background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335, #4285F4);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: shine 5s linear infinite, float 3s ease-in-out infinite;
-      letter-spacing: 3px;
+      background-size: 300% 300%;
+      animation: shine 6s linear infinite, float 4s ease-in-out infinite;
       text-align: center;
     }
 
-    /* Floating animation */
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
+    /* Futuristic glowing border */
+    h1::after {
+      content: "";
+      display: block;
+      margin: 15px auto 0;
+      width: 60%;
+      height: 3px;
+      background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335);
+      border-radius: 3px;
+      animation: glowline 3s infinite alternate;
     }
 
-    /* Shine effect */
+    /* Floating glow effect */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Pulsing logo */
+    @keyframes pulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 10px #4285F4); }
+      50% { transform: scale(1.1); filter: drop-shadow(0 0 25px #34A853); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 15px #EA4335); }
+    }
+
+    /* Neon shine */
     @keyframes shine {
       0% { background-position: 0% 50%; }
       100% { background-position: 200% 50%; }
     }
 
-    h1 span {
-      display: inline-block;
-      animation: glow 2s ease-in-out infinite alternate;
+    /* Line glow */
+    @keyframes glowline {
+      from { opacity: 0.6; box-shadow: 0 0 10px #4285F4; }
+      to { opacity: 1; box-shadow: 0 0 25px #EA4335; }
     }
 
-    /* Glow per word */
-    @keyframes glow {
-      from { text-shadow: 0 0 5px #fff, 0 0 10px #3498db, 0 0 20px #2ecc71; }
-      to   { text-shadow: 0 0 15px #f1c40f, 0 0 25px #e74c3c, 0 0 35px #3498db; }
-    }
-
-    /* Floating particles background */
+    /* Floating neon particles */
     .particle {
       position: absolute;
       border-radius: 50%;
-      background: rgba(255,255,255,0.3);
-      animation: drift 20s linear infinite;
+      background: rgba(255,255,255,0.2);
+      animation: drift 15s linear infinite;
     }
 
     @keyframes drift {
-      from { transform: translateY(100vh) scale(0.5); opacity: 0; }
+      from { transform: translateY(100vh) scale(0.3); opacity: 0; }
       50% { opacity: 1; }
-      to { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+      to { transform: translateY(-10vh) scale(1); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <!-- Particles -->
-  <div class="particle" style="width:10px;height:10px;left:20%;animation-delay:0s;"></div>
-  <div class="particle" style="width:8px;height:8px;left:50%;animation-delay:2s;"></div>
-  <div class="particle" style="width:12px;height:12px;left:70%;animation-delay:4s;"></div>
-  <div class="particle" style="width:6px;height:6px;left:90%;animation-delay:6s;"></div>
-  <div class="particle" style="width:9px;height:9px;left:35%;animation-delay:8s;"></div>
+  <!-- Background particles -->
+  <div class="particle" style="width:8px;height:8px;left:15%;animation-delay:0s;"></div>
+  <div class="particle" style="width:12px;height:12px;left:45%;animation-delay:3s;"></div>
+  <div class="particle" style="width:10px;height:10px;left:75%;animation-delay:6s;"></div>
+  <div class="particle" style="width:6px;height:6px;left:30%;animation-delay:9s;"></div>
+  <div class="particle" style="width:14px;height:14px;left:60%;animation-delay:12s;"></div>
 
-  <h1>
-    <span>Welcome to</span> 
-    <span>GCP Cloud HUB</span> - 
-    <span>Version_0.1</span>
-  </h1>
+  <!-- GCP Logo -->
+  <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="Google Cloud Logo">
+
+  <!-- Title -->
+  <h1>Welcome to GCP Cloud HUB - Version_0.1</h1>
 </body>
 </html>
