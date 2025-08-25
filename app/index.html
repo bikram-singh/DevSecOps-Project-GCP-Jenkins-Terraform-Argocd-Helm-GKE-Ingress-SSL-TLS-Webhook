@@ -70,6 +70,19 @@
       to { opacity: 1; box-shadow: 0 0 25px #EA4335; }
     }
 
+    /* Text glow animation for gcpcloudhub.in */
+    @keyframes colorGlow {
+      0%   { fill: #4285F4; text-shadow: 0 0 10px #4285F4; }
+      25%  { fill: #34A853; text-shadow: 0 0 15px #34A853; }
+      50%  { fill: #FBBC05; text-shadow: 0 0 15px #FBBC05; }
+      75%  { fill: #EA4335; text-shadow: 0 0 15px #EA4335; }
+      100% { fill: #4285F4; text-shadow: 0 0 10px #4285F4; }
+    }
+
+    .glow-text {
+      animation: colorGlow 6s infinite;
+    }
+
     /* Particles */
     .particle {
       position: absolute;
@@ -93,15 +106,15 @@
   <div class="particle" style="width:6px;height:6px;left:30%;animation-delay:9s;"></div>
   <div class="particle" style="width:14px;height:14px;left:60%;animation-delay:12s;"></div>
 
-  <!-- Custom GCP Cloud Logo -->
+  <!-- Custom GCP Cloud Logo with animated text -->
   <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 262">
     <!-- Google Cloud logo shape -->
     <path fill="#EA4335" d="M67.6 201.6l-19.8 19.7c35.9 35.9 94.1 35.9 130 0l-19.8-19.7c-24.9 24.9-65.5 24.9-90.4 0z"/>
     <path fill="#34A853" d="M201.6 188.4c-35.9 35.9-94.1 35.9-130 0l19.8-19.8c24.9 24.9 65.5 24.9 90.4 0l19.8 19.8z"/>
     <path fill="#FBBC05" d="M188.4 54.4c-35.9-35.9-94.1-35.9-130 0l19.8 19.8c24.9-24.9 65.5-24.9 90.4 0l19.8-19.8z"/>
     <path fill="#4285F4" d="M201.6 67.6l-19.8-19.8c35.9 35.9 35.9 94.1 0 130l19.8-19.8c24.9-24.9 24.9-65.5 0-90.4z"/>
-    <!-- Custom text -->
-    <text x="50%" y="92%" text-anchor="middle" font-size="28" fill="#ffffff" font-weight="bold" font-family="Arial, sans-serif">
+    <!-- Custom glowing text -->
+    <text class="glow-text" x="50%" y="92%" text-anchor="middle" font-size="28" font-weight="bold" font-family="Arial, sans-serif">
       gcpcloudhub.in
     </text>
   </svg>
