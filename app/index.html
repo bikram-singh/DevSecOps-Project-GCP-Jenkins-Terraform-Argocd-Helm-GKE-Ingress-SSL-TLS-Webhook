@@ -19,14 +19,14 @@
     }
 
     .logo {
-      width: 120px;
+      width: 220px;
+      margin-bottom: 25px;
       animation: pulse 3s infinite ease-in-out;
-      margin-bottom: 30px;
-      filter: drop-shadow(0 0 15px rgba(66,133,244,0.8));
+      filter: drop-shadow(0 0 20px rgba(66,133,244,0.9));
     }
 
     h1 {
-      font-size: 2.8em;
+      font-size: 2.6em;
       text-transform: uppercase;
       letter-spacing: 3px;
       background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335, #4285F4);
@@ -37,7 +37,6 @@
       text-align: center;
     }
 
-    /* Futuristic glowing border */
     h1::after {
       content: "";
       display: block;
@@ -49,32 +48,29 @@
       animation: glowline 3s infinite alternate;
     }
 
-    /* Floating glow effect */
+    /* Animations */
     @keyframes float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
 
-    /* Pulsing logo */
     @keyframes pulse {
       0% { transform: scale(1); filter: drop-shadow(0 0 10px #4285F4); }
       50% { transform: scale(1.1); filter: drop-shadow(0 0 25px #34A853); }
       100% { transform: scale(1); filter: drop-shadow(0 0 15px #EA4335); }
     }
 
-    /* Neon shine */
     @keyframes shine {
       0% { background-position: 0% 50%; }
       100% { background-position: 200% 50%; }
     }
 
-    /* Line glow */
     @keyframes glowline {
       from { opacity: 0.6; box-shadow: 0 0 10px #4285F4; }
       to { opacity: 1; box-shadow: 0 0 25px #EA4335; }
     }
 
-    /* Floating neon particles */
+    /* Particles */
     .particle {
       position: absolute;
       border-radius: 50%;
@@ -90,15 +86,25 @@
   </style>
 </head>
 <body>
-  <!-- Background particles -->
+  <!-- Particles -->
   <div class="particle" style="width:8px;height:8px;left:15%;animation-delay:0s;"></div>
   <div class="particle" style="width:12px;height:12px;left:45%;animation-delay:3s;"></div>
   <div class="particle" style="width:10px;height:10px;left:75%;animation-delay:6s;"></div>
   <div class="particle" style="width:6px;height:6px;left:30%;animation-delay:9s;"></div>
   <div class="particle" style="width:14px;height:14px;left:60%;animation-delay:12s;"></div>
 
-  <!-- GCP Logo -->
-  <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="Google Cloud Logo">
+  <!-- Custom GCP Cloud Logo -->
+  <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 262">
+    <!-- Google Cloud logo shape -->
+    <path fill="#EA4335" d="M67.6 201.6l-19.8 19.7c35.9 35.9 94.1 35.9 130 0l-19.8-19.7c-24.9 24.9-65.5 24.9-90.4 0z"/>
+    <path fill="#34A853" d="M201.6 188.4c-35.9 35.9-94.1 35.9-130 0l19.8-19.8c24.9 24.9 65.5 24.9 90.4 0l19.8 19.8z"/>
+    <path fill="#FBBC05" d="M188.4 54.4c-35.9-35.9-94.1-35.9-130 0l19.8 19.8c24.9-24.9 65.5-24.9 90.4 0l19.8-19.8z"/>
+    <path fill="#4285F4" d="M201.6 67.6l-19.8-19.8c35.9 35.9 35.9 94.1 0 130l19.8-19.8c24.9-24.9 24.9-65.5 0-90.4z"/>
+    <!-- Custom text -->
+    <text x="50%" y="92%" text-anchor="middle" font-size="28" fill="#ffffff" font-weight="bold" font-family="Arial, sans-serif">
+      gcpcloudhub.in
+    </text>
+  </svg>
 
   <!-- Title -->
   <h1>Welcome to GCP Cloud HUB - Version_0.1</h1>
