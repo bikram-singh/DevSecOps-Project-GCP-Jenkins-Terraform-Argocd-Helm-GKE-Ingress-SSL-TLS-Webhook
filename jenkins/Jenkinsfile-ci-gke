@@ -1,44 +1,51 @@
 pipeline {
-    agent any   // Run on any available Jenkins agent/node
+    agent any   // Run this pipeline on any available Jenkins agent/node
 
-    // User-selectable parameters to decide which pipeline flow to run
+    // ----------- User-selectable parameters -----------
     parameters {
-        // Choose between CI/CD pipeline or Infra pipeline
-        choice(name: 'PIPELINE', choices: ['ci', 'infra'], description: 'Choose pipeline: ci for application CI/CD, infra for GKE Terraform')
-        
-        // Infra-specific parameter, ignored in CI/CD pipeline
-        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'For infra pipeline: apply or destroy (ignored for CI/CD)')
+        // PIPELINE: decides whether to run CI/CD pipeline or Infra pipeline
+        choice(
+            name: 'PIPELINE',
+            choices: ['ci', 'infra'],   // "ci" = application build/deploy, "infra" = infra provisioning via Terraform
+            description: 'Choose pipeline: ci for application CI/CD, infra for GKE Terraform'
+        )
+
+        // ACTION: only relevant for "infra" pipeline (ignored for "ci")
+        choice(
+            name: 'ACTION',
+            choices: ['apply', 'destroy'],   // apply = create infra, destroy = delete infra
+            description: 'For infra pipeline: apply or destroy (ignored for CI/CD)'
+        )
     }
 
-    // Global environment variables for authentication and tool setup
+    // ----------- Global environment variables -----------
     environment {
-        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account')   // GCP service account credentials (JSON key)
-        GOOGLE_CLOUD_PROJECT = credentials('gcp-project-id')                  // GCP project ID
-        IMAGE_TAG = "1.0.${currentBuild.number}"                              // Auto-incrementing image tag
-        GITHUB_TOKEN = credentials('github-token')                            // GitHub token for pushing Helm updates
-        SCANNER_HOME = tool 'sonar-scanner'                                   // SonarQube scanner installation in Jenkins
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account')   // Jenkins credential ID → stores GCP service account key JSON
+        GOOGLE_CLOUD_PROJECT = credentials('gcp-project-id')                  // Jenkins credential ID → stores GCP project ID
+        IMAGE_TAG = "1.0.${currentBuild.number}"                              // Auto-increment Docker image tag → ensures unique version per build
+        SCANNER_HOME = tool 'sonar-scanner'                                   // Jenkins "Tool" config for SonarQube scanner (must exist in Jenkins)
     }
 
+    // ----------- Pipeline stages -----------
     stages {
         stage('Checkout Repo') {
             steps {
-                // Clean old workspace and fetch latest code
+                // Clean previous workspace and fetch latest code from GitHub
                 cleanWs()
-                git branch: 'main', credentialsId: 'github-token',
-                    url: 'https://github.com/bikram-singh/DevSecOps-CI-CD-Pipeline-GCP-Jenkins-Terraform-AgroCD-Helm-GKE-Ingress-SSL-TLS-webhook.git'
+                git branch: 'main', url: 'https://github.com/bikram-singh/DevSecOps-Project-GCP-Jenkins-Terraform-Argocd-Helm-GKE-Ingress-SSL-TLS-Webhook.git'
             }
         }
 
         stage('Pipeline Selector') {
             steps {
                 script {
-                    // Route execution to appropriate function based on PIPELINE parameter
+                    // Branch execution based on selected PIPELINE parameter
                     if (params.PIPELINE == 'ci') {
                         echo "Running Application CI/CD pipeline..."
-                        buildAppPipeline()
+                        buildAppPipeline()     // Call function that runs CI/CD flow
                     } else {
                         echo "Running Terraform Infra pipeline..."
-                        buildInfraPipeline()
+                        buildInfraPipeline()   // Call function that runs infra flow
                     }
                 }
             }
@@ -46,16 +53,15 @@ pipeline {
     }
 }
 
-//
-// ---------- Shared Functions ----------
-//
+// ==================================================
+// ----------- Shared Functions Section ------------
+// ==================================================
 
-// ---------------------
-// Application CI/CD Flow
-// ---------------------
+// -------------------------------
+// Application CI/CD Pipeline Flow
+// -------------------------------
 def buildAppPipeline() {
     stage('Authenticate with GCP') {
-        // Authenticate Jenkins with GCP and configure Docker with Artifact Registry
         sh """
           gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
           gcloud config set project ${GOOGLE_CLOUD_PROJECT}
@@ -64,41 +70,44 @@ def buildAppPipeline() {
     }
 
     stage('Security Scan - Trivy FS') {
-        // Scan filesystem (application source code & dependencies) for vulnerabilities
-        sh "trivy fs app/"
+        sh "trivy fs app/"   // Scan local source code dependencies for vulnerabilities
     }
 
     stage('SonarQube Analysis') {
-        // Run static code analysis with SonarQube
         withSonarQubeEnv('sonar-server') {
+            // sonar.projectKey → unique key for project in SonarQube
+            // sonar.projectName → name visible in SonarQube UI
             sh """
               $SCANNER_HOME/bin/sonar-scanner \
-              -Dsonar.projectKey=app \
-              -Dsonar.projectName=app
+                -Dsonar.projectKey=app \
+                -Dsonar.projectName=app
             """
         }
     }
 
     stage('Quality Gate') {
-        // Enforce SonarQube quality gate policy
         script {
+            // Wait for SonarQube to return pass/fail on quality gate
             waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
         }
     }
-
+    
     stage('OWASP Dependency Check') {
-        // Dependency vulnerability scanning (OWASP DC)
-        dependencyCheck additionalArguments: '--scan ./app --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+         // Dependency scanning for vulnerable libraries
+         dependencyCheck additionalArguments: '--scan ./app --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
     }
 
     stage('Build & Push Docker Image') {
-        // Build Docker image and push to GCP Artifact Registry
         script {
+            // Authenticate Docker with GCP Artifact Registry
             sh 'cat $GOOGLE_APPLICATION_CREDENTIALS | docker login -u _json_key --password-stdin https://us-central1-docker.pkg.dev'
+
+            // Build, tag, and push Docker image
             sh """
               docker build -t hello:latest ./app
               docker tag hello:latest us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/docker-repo/hello:${IMAGE_TAG}
+              docker tag hello:latest us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/docker-repo/hello:latest
               docker push us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/docker-repo/hello:${IMAGE_TAG}
               docker push us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/docker-repo/hello:latest
             """
@@ -106,34 +115,36 @@ def buildAppPipeline() {
     }
 
     stage('Security Scan - Trivy Image') {
-        // Scan built Docker image for vulnerabilities
+        // Scan the built Docker image in Artifact Registry for vulnerabilities
         sh "trivy image us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/docker-repo/hello:${IMAGE_TAG}"
     }
 
     stage('Update Helm Chart values.yaml') {
-        // Update Helm values.yaml with new Docker image tag and push changes to repo
-        sh """
-          sed -i "s|image:.*|image: us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/docker-repo/hello:${IMAGE_TAG}|" helm/values.yaml
-          git config user.email "bikram23march@example.com"
-          git config user.name "bikram-singh"
-          git add helm/values.yaml
-          git commit -m "Update image to ${IMAGE_TAG}" || true
-          git push https://${GITHUB_TOKEN}@github.com/bikram-singh/DevSecOps-CI-CD-Pipeline-GCP-Jenkins-Terraform-AgroCD-Helm-GKE-Ingress-SSL-TLS-webhook.git main
-        """
+        // Update image tag in Helm chart and push change back to GitHub
+        withCredentials([usernamePassword(credentialsId: 'github-token',
+                                          usernameVariable: 'GITHUB_USER',
+                                          passwordVariable: 'GITHUB_TOKEN')]) {
+            sh """
+              sed -i "s|image:.*|image: us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/docker-repo/hello:${IMAGE_TAG}|" helm/values.yaml
+              git config user.email "bikram23march@gmail.com"
+              git config user.name "bikram-singh"
+              git add helm/values.yaml
+              git commit -m "Update image to ${IMAGE_TAG}" || echo "No changes to commit"
+              git push https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/bikram-singh/DevSecOps-Project-GCP-Jenkins-Terraform-Argocd-Helm-GKE-Ingress-SSL-TLS-Webhook.git main
+            """
+        }
     }
 
     stage('CD Trigger') {
-        // ArgoCD (or Helm) will detect change and sync automatically
         echo "Helm chart updated. ArgoCD/Helm will sync automatically."
     }
 }
 
-// ---------------------
-// Infra Provisioning Flow
-// ---------------------
+// -------------------------------
+// Infrastructure Provisioning Flow
+// -------------------------------
 def buildInfraPipeline() {
     stage('Terraform Init') {
-        // Initialize Terraform modules and backend
         dir('gke-terraform') {
             sh 'terraform init'
         }
@@ -143,11 +154,9 @@ def buildInfraPipeline() {
         dir('gke-terraform') {
             script {
                 if (params.ACTION == 'apply') {
-                    // Plan and apply infrastructure changes
                     sh 'terraform plan'
                     sh 'terraform apply --auto-approve'
                 } else {
-                    // Destroy infrastructure
                     sh 'terraform destroy --auto-approve'
                 }
             }
