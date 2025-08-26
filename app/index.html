@@ -27,7 +27,7 @@
 
     .title-container {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
       position: relative;
     }
@@ -36,7 +36,7 @@
       font-size: 2.6em;
       text-transform: uppercase;
       letter-spacing: 3px;
-      margin: 0 15px;
+      margin: 0 20px;
       background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335, #4285F4);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -58,24 +58,32 @@
       animation: glowline 3s infinite alternate;
     }
 
-    /* Party Poppers */
+    /* Bigger Party Poppers */
     .popper {
-      font-size: 2.2em;
+      font-size: 3.5em;   /* Bigger size */
       position: relative;
-      animation: bounce 2s infinite ease-in-out;
-      cursor: default;
+      margin-bottom: -10px; /* slightly overlap text baseline */
+      animation: bounce 2.5s infinite ease-in-out;
+    }
+
+    .popper.left {
+      transform: rotate(25deg); /* open toward Welcome */
+    }
+
+    .popper.right {
+      transform: scaleX(-1) rotate(25deg); /* flipped to open toward 0.4 */
     }
 
     @keyframes bounce {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-6px) rotate(-10deg); }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
     /* Sparkles (confetti effect) */
     .sparkle {
       position: absolute;
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: #fff;
       opacity: 0;
@@ -123,18 +131,18 @@
   <!-- Title with party poppers -->
   <div class="title-container">
     <div class="popper left">🎉</div>
-    <h1>Welcome to GCP Cloud HUB - Version_0.4</h1>
+    <h1>Welcome to GCP Cloud HUB - Version_0.1</h1>
     <div class="popper right">🎉</div>
 
     <!-- Sparkles from left popper -->
-    <div class="sparkle" style="left:0; bottom:-10px; --x:-120px; --y:-180px; background:#34A853;"></div>
-    <div class="sparkle" style="left:0; bottom:-10px; --x:-100px; --y:-150px; background:#4285F4; animation-delay:0.3s;"></div>
-    <div class="sparkle" style="left:0; bottom:-10px; --x:-80px; --y:-200px; background:#FBBC05; animation-delay:0.6s;"></div>
+    <div class="sparkle" style="left:0; bottom:-5px; --x:-120px; --y:-180px; background:#34A853;"></div>
+    <div class="sparkle" style="left:0; bottom:-5px; --x:-100px; --y:-150px; background:#4285F4; animation-delay:0.3s;"></div>
+    <div class="sparkle" style="left:0; bottom:-5px; --x:-80px; --y:-200px; background:#FBBC05; animation-delay:0.6s;"></div>
 
     <!-- Sparkles from right popper -->
-    <div class="sparkle" style="right:0; bottom:-10px; --x:120px; --y:-180px; background:#EA4335;"></div>
-    <div class="sparkle" style="right:0; bottom:-10px; --x:100px; --y:-150px; background:#34A853; animation-delay:0.4s;"></div>
-    <div class="sparkle" style="right:0; bottom:-10px; --x:80px; --y:-200px; background:#4285F4; animation-delay:0.7s;"></div>
+    <div class="sparkle" style="right:0; bottom:-5px; --x:120px; --y:-180px; background:#EA4335;"></div>
+    <div class="sparkle" style="right:0; bottom:-5px; --x:100px; --y:-150px; background:#34A853; animation-delay:0.4s;"></div>
+    <div class="sparkle" style="right:0; bottom:-5px; --x:80px; --y:-200px; background:#4285F4; animation-delay:0.7s;"></div>
   </div>
 </body>
 </html>
